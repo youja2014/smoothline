@@ -1,32 +1,55 @@
-# Claude Code statusline installer
-# Run from the unzipped folder: PowerShell -ExecutionPolicy Bypass -File .\install.ps1
+# smoothline — Claude Code statusline installer (Windows)
+#
+# Local install (from a clone or unzipped folder):
+#   PowerShell -ExecutionPolicy Bypass -File .\install.ps1
+#
+# One-liner (downloads everything from GitHub):
+#   irm https://raw.githubusercontent.com/youja2014/smoothline/main/install.ps1 | iex
 
 $ErrorActionPreference = 'Stop'
 
+$RepoBase = 'https://raw.githubusercontent.com/youja2014/smoothline/main'
+
+# In one-liner (irm | iex) mode $PSScriptRoot is empty; in local mode it's the script folder.
 $src = $PSScriptRoot
 $dst = Join-Path $env:USERPROFILE '.claude'
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
 
-Write-Host "[1/4] Copying statusline files to $dst" -ForegroundColor Cyan
-
-# .cmd is ASCII-safe, plain copy
-Copy-Item -Path (Join-Path $src 'statusline.cmd') -Destination (Join-Path $dst 'statusline.cmd') -Force
-
-# .ps1 is ASCII-safe, plain copy
-Copy-Item -Path (Join-Path $src 'statusline-command.ps1') -Destination (Join-Path $dst 'statusline-command.ps1') -Force
-
-# .py contains UTF-8 multibyte (box-drawing chars). Read raw bytes and write
-# verbatim to avoid any re-encoding by PowerShell.
-$pyBytes = [System.IO.File]::ReadAllBytes((Join-Path $src 'statusline.py'))
-[System.IO.File]::WriteAllBytes((Join-Path $dst 'statusline.py'), $pyBytes)
-
-Write-Host "[2/4] Checking python on PATH" -ForegroundColor Cyan
-$py = Get-Command python -ErrorAction SilentlyContinue
-if (-not $py) {
-    Write-Warning "python not found on PATH. Install Python 3.x or edit statusline.cmd to point at python.exe absolute path."
-} else {
-    Write-Host "    Found: $($py.Source)" -ForegroundColor Green
+function Get-Asset([string]$name, [string]$outPath) {
+    if ($src -and (Test-Path (Join-Path $src $name))) {
+        $bytes = [System.IO.File]::ReadAllBytes((Join-Path $src $name))
+    } else {
+        $tmp = [System.IO.Path]::GetTempFileName()
+        try {
+            Invoke-WebRequest -Uri "$RepoBase/$name" -OutFile $tmp -UseBasicParsing
+            $bytes = [System.IO.File]::ReadAllBytes($tmp)
+        } finally {
+            Remove-Item $tmp -ErrorAction SilentlyContinue
+        }
+    }
+    [System.IO.File]::WriteAllBytes($outPath, $bytes)
 }
+
+Write-Host "[1/4] Installing statusline files to $dst" -ForegroundColor Cyan
+
+# statusline.py contains UTF-8 multibyte glyphs — Get-Asset preserves raw bytes.
+Get-Asset 'statusline.py'             (Join-Path $dst 'statusline.py')
+Get-Asset 'statusline-command.ps1'    (Join-Path $dst 'statusline-command.ps1')
+
+Write-Host "[2/4] Detecting python on PATH" -ForegroundColor Cyan
+$py = Get-Command python -ErrorAction SilentlyContinue
+if ($py) {
+    $pythonPath = $py.Source
+    Write-Host "    Found: $pythonPath" -ForegroundColor Green
+} else {
+    $pythonPath = 'python'
+    Write-Warning "python not found on PATH. statusline.cmd will use the literal 'python' — install Python 3.x and ensure it's on PATH."
+}
+
+# Generate statusline.cmd dynamically so it points at THIS machine's python.
+$pyPath = Join-Path $dst 'statusline.py'
+$cmdContent = "@echo off`r`n`"$pythonPath`" `"$pyPath`"`r`n"
+[System.IO.File]::WriteAllText((Join-Path $dst 'statusline.cmd'), $cmdContent, (New-Object System.Text.UTF8Encoding $false))
 
 Write-Host "[3/4] Patching settings.json" -ForegroundColor Cyan
 $settingsPath = Join-Path $dst 'settings.json'
@@ -64,7 +87,7 @@ $out = $testJson | & (Join-Path $dst 'statusline.cmd')
 if ($out) {
     Write-Host "    Output: $out" -ForegroundColor Green
 } else {
-    Write-Warning "    Statusline produced no output. Check python install / statusline.cmd contents."
+    Write-Warning "    Statusline produced no output. Check python install."
 }
 
 Write-Host ""

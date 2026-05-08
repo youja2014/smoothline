@@ -118,11 +118,32 @@ If you wire it up by hand, here is what the OS-specific entry looks like:
 
 ---
 
-## 3. One-shot install (recommended)
+## 3. One-shot install
 
-Unzip / clone the package and run the installer for your OS:
+### 3-A. One-liner (fastest)
 
-### Windows
+The installer pulls everything it needs straight from GitHub, drops it under `~/.claude/`, and patches `settings.json`.
+
+#### macOS / Linux
+```bash
+curl -fsSL https://raw.githubusercontent.com/youja2014/smoothline/main/install.sh | bash
+```
+
+#### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/youja2014/smoothline/main/install.ps1 | iex
+```
+
+#### Windows (cmd)
+```cmd
+curl -fsSL https://raw.githubusercontent.com/youja2014/smoothline/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+### 3-B. git clone / zip install
+
+Grab the sources and run the installer in local mode. Sibling files are copied verbatim, so this works fully offline.
+
+#### Windows
 ```cmd
 install.cmd       :: double-click works
 ```
@@ -131,24 +152,23 @@ or PowerShell:
 .\install.ps1
 ```
 
-### macOS / Linux
+#### macOS / Linux
 ```bash
 bash install.sh
 # or
 chmod +x install.sh && ./install.sh
 ```
 
-### Inside Claude Code (macOS/Linux)
+#### Inside Claude Code (macOS/Linux)
 On a machine that already has Claude Code, `cd` into the unpacked folder and just say:
 > "Run install.sh in this folder to set up the statusline"
 
-Claude will invoke `bash install.sh` (PATH-based python discovery, settings.json patch, smoke test — all included).
-
 ### What every installer does
-1. Copies the statusline files into `~/.claude/`
-2. Auto-detects Python — Windows checks `python` on PATH, Unix tries `python3` then `python`
-3. Adds/replaces only the `statusLine` key in `~/.claude/settings.json` (other keys are preserved)
-4. Runs the statusline once with a dummy JSON payload and prints the output
+1. **Source the assets** — if `statusline.py` is a sibling, copy it (local mode); otherwise download from the GitHub raw URL (one-liner mode)
+2. Auto-detect Python — Windows checks `python` on PATH, Unix tries `python3` then `python`
+3. On Windows, **regenerate `statusline.cmd`** with the detected Python's absolute path (so the one-liner install just works without editing)
+4. Add/replace only the `statusLine` key in `~/.claude/settings.json` (other keys preserved)
+5. Run the statusline once with a dummy JSON payload and print the output
 
 ---
 

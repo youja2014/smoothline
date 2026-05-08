@@ -1,19 +1,46 @@
 #!/usr/bin/env bash
-# Claude Code statusline installer (macOS / Linux)
-# Usage:
+# smoothline — Claude Code statusline installer (macOS / Linux)
+#
+# Local install (from a clone or unzipped folder):
 #   bash install.sh
-# or make executable:
-#   chmod +x install.sh && ./install.sh
+#
+# One-liner (downloads everything from GitHub):
+#   curl -fsSL https://raw.githubusercontent.com/youja2014/smoothline/main/install.sh | bash
 set -euo pipefail
 
-SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_BASE="https://raw.githubusercontent.com/youja2014/smoothline/main"
 DST_DIR="$HOME/.claude"
 mkdir -p "$DST_DIR"
 
 c_cyan='\033[36m'; c_green='\033[32m'; c_yellow='\033[33m'; c_red='\033[31m'; c_reset='\033[0m'
 
-printf "${c_cyan}[1/4]${c_reset} Copying statusline.py to %s\n" "$DST_DIR"
-cp "$SRC_DIR/statusline.py" "$DST_DIR/statusline.py"
+# Detect mode: SRC_DIR is set only when running from a real script file with siblings.
+# In curl-pipe mode BASH_SOURCE[0] is empty / 'main' / non-existent, so SRC_DIR stays empty.
+SRC_DIR=""
+if [ -n "${BASH_SOURCE-}" ]; then
+    candidate="${BASH_SOURCE[0]:-}"
+    if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+        SRC_DIR="$(cd "$(dirname "$candidate")" && pwd)"
+    fi
+fi
+
+fetch_asset() {
+    local name="$1"
+    local out="$2"
+    if [ -n "$SRC_DIR" ] && [ -f "$SRC_DIR/$name" ]; then
+        cp "$SRC_DIR/$name" "$out"
+    elif command -v curl >/dev/null 2>&1; then
+        curl -fsSL "$REPO_BASE/$name" -o "$out"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q "$REPO_BASE/$name" -O "$out"
+    else
+        printf "${c_red}ERROR:${c_reset} curl or wget is required to download %s\n" "$name" >&2
+        exit 1
+    fi
+}
+
+printf "${c_cyan}[1/4]${c_reset} Installing statusline.py to %s\n" "$DST_DIR"
+fetch_asset "statusline.py" "$DST_DIR/statusline.py"
 chmod +x "$DST_DIR/statusline.py"
 
 printf "${c_cyan}[2/4]${c_reset} Locating python\n"
@@ -30,8 +57,6 @@ if [ -z "$PY" ]; then
 fi
 printf "    Using: %s\n" "$PY"
 
-# settings.json command field — point directly at the executable .py
-# (works because of the shebang + chmod +x above)
 STATUSLINE_CMD="$DST_DIR/statusline.py"
 
 printf "${c_cyan}[3/4]${c_reset} Patching %s/settings.json\n" "$DST_DIR"

@@ -188,11 +188,32 @@ $parts -join ' | '
 
 ---
 
-## 3. 한 번에 설치하기 (zip 패키지 사용 — 권장)
+## 3. 한 번에 설치하기
 
-zip 압축 풀고 본인 OS 에 맞는 인스톨러 실행:
+### 3-A. 한 줄 설치 (가장 빠름)
 
-### Windows
+인스톨러가 GitHub 에서 필요한 파일을 직접 받아 `~/.claude/` 에 깔고 `settings.json` 까지 패치합니다.
+
+#### macOS / Linux
+```bash
+curl -fsSL https://raw.githubusercontent.com/youja2014/smoothline/main/install.sh | bash
+```
+
+#### Windows (PowerShell)
+```powershell
+irm https://raw.githubusercontent.com/youja2014/smoothline/main/install.ps1 | iex
+```
+
+#### Windows (cmd)
+```cmd
+curl -fsSL https://raw.githubusercontent.com/youja2014/smoothline/main/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+### 3-B. git clone / zip 으로 설치
+
+소스를 받아 인스톨러를 로컬 모드로 실행. 같은 폴더의 sibling 파일을 그대로 복사하므로 네트워크 없이도 동작.
+
+#### Windows
 ```cmd
 install.cmd       :: 더블클릭으로 OK
 ```
@@ -201,24 +222,23 @@ install.cmd       :: 더블클릭으로 OK
 .\install.ps1
 ```
 
-### macOS / Linux
+#### macOS / Linux
 ```bash
 bash install.sh
 # 또는
 chmod +x install.sh && ./install.sh
 ```
 
-### Claude Code 안에서 설치 (Mac/Linux)
-zip 을 받은 PC 에서 Claude Code 를 띄우고 압축 푼 폴더로 `cd` 한 뒤 이렇게 말하면 됩니다:
+#### Claude Code 안에서 설치 (Mac/Linux)
+clone/unzip 한 PC 에서 Claude Code 를 띄우고 폴더로 `cd` 한 뒤 이렇게 말하면 됩니다:
 > "이 폴더의 install.sh 실행해서 statusline 설치해줘"
 
-Claude 가 `bash install.sh` 를 호출해서 자동 진행합니다 (PATH 의 python, settings.json 패치, 스모크 테스트 모두 포함).
-
 ### 인스톨러 공통 동작
-1. `~/.claude/` 에 statusline 파일 복사
+1. **파일 확보** — sibling 에 `statusline.py` 가 있으면 그걸 복사 (로컬 모드), 없으면 GitHub raw URL 에서 다운로드 (한 줄 설치 모드)
 2. Python 위치 자동 탐색 — Windows 는 PATH 의 `python`, Unix 는 `python3` → `python` 순
-3. `~/.claude/settings.json` 의 `statusLine` 키만 추가/교체 (다른 키는 보존)
-4. 더미 JSON 으로 statusline 한 번 실행해서 결과를 화면에 보여줌
+3. Windows 는 검출된 python 절대 경로로 `statusline.cmd` 를 **동적 생성** (한 줄 설치 직후 별도 편집 없이 바로 동작)
+4. `~/.claude/settings.json` 의 `statusLine` 키만 추가/교체 (다른 키는 보존)
+5. 더미 JSON 으로 statusline 한 번 실행해서 결과를 화면에 보여줌
 
 ---
 
