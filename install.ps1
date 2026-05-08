@@ -33,8 +33,10 @@ function Get-Asset([string]$name, [string]$outPath) {
 Write-Host "[1/4] Installing statusline files to $dst" -ForegroundColor Cyan
 
 # statusline.py contains UTF-8 multibyte glyphs — Get-Asset preserves raw bytes.
-Get-Asset 'statusline.py'             (Join-Path $dst 'statusline.py')
-Get-Asset 'statusline-command.ps1'    (Join-Path $dst 'statusline-command.ps1')
+$pyOut  = Join-Path $dst 'statusline.py'
+$ps1Out = Join-Path $dst 'statusline-command.ps1'
+Get-Asset 'statusline.py'          $pyOut
+Get-Asset 'statusline-command.ps1' $ps1Out
 
 Write-Host "[2/4] Detecting python on PATH" -ForegroundColor Cyan
 $py = Get-Command python -ErrorAction SilentlyContinue

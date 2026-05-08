@@ -59,20 +59,16 @@ which python3 || which python
 
 위치: `%USERPROFILE%\.claude\` (예: `C:\Users\<USERNAME>\.claude\`)
 
-### 1-A. `statusline.cmd`
+### 1-A. `statusline.cmd` (Windows 전용, 인스톨러가 생성)
 
-> **수정 포인트**: Python 실행 파일 경로를 새 PC 환경에 맞게 변경. 시스템 PATH에 python이 있다면 그냥 `python`만 써도 됨.
+인스톨러가 설치 시점에 PATH 에서 검출한 Python 절대 경로를 박아서 이 파일을 자동 생성합니다. 평상시엔 건드릴 필요 없습니다. 생성 결과 예시:
 
 ```cmd
 @echo off
-"%USERPROFILE%\AppData\Roaming\uv\python\cpython-3.14-windows-x86_64-none\python.exe" "%USERPROFILE%\.claude\statusline.py"
+"C:\Users\<USERNAME>\AppData\Local\Programs\Python\Python312\python.exe" "C:\Users\<USERNAME>\.claude\statusline.py"
 ```
 
-옵션 — PATH의 python 사용:
-```cmd
-@echo off
-python "%USERPROFILE%\.claude\statusline.py"
-```
+설치 시점에 PATH 에 python 이 없으면 인스톨러가 리터럴 `python` 으로 폴백하고 경고를 띄웁니다. 그 뒤 Python 을 PATH 에 올린 다음 인스톨러를 다시 돌리면 절대 경로가 박힙니다.
 
 ### 1-B. `statusline.py`
 
