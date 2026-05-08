@@ -4,6 +4,10 @@
 
 **English** | **[한국어](README.ko.md)**
 
+[![PyPI](https://img.shields.io/pypi/v/smoothline.svg)](https://pypi.org/project/smoothline/)
+[![Python](https://img.shields.io/pypi/pyversions/smoothline.svg)](https://pypi.org/project/smoothline/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ---
 
 A drop-in statusline for [Claude Code](https://claude.com/claude-code) that ships the same look across **Windows, macOS, and Linux**.
@@ -165,6 +169,34 @@ On a machine that already has Claude Code, `cd` into the unpacked folder and jus
 3. On Windows, **regenerate `statusline.cmd`** with the detected Python's absolute path (so the one-liner install just works without editing)
 4. Add/replace only the `statusLine` key in `~/.claude/settings.json` (other keys preserved)
 5. Run the statusline once with a dummy JSON payload and print the output
+
+### 3-C. Install via PyPI
+
+If you'd rather grab `smoothline` as a regular Python tool — no installer, no file copies under `~/.claude`:
+
+```bash
+uv tool install smoothline
+```
+
+or
+
+```bash
+pip install --user smoothline
+```
+
+Either way you get a `smoothline` executable on PATH. Wire it into `~/.claude/settings.json` directly:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "smoothline",
+    "padding": 0
+  }
+}
+```
+
+Restart Claude Code. The PyPI binary is the entry point — no separate `~/.claude/statusline.py` needed.
 
 ---
 
