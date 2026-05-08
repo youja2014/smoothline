@@ -198,6 +198,31 @@ Either way you get a `smoothline` executable on PATH. Wire it into `~/.claude/se
 
 Restart Claude Code. The PyPI binary is the entry point — no separate `~/.claude/statusline.py` needed.
 
+### 3-D. Install via Homebrew (macOS / Linux)
+
+```bash
+brew install youja2014/tap/smoothline
+```
+
+or, the two-step form:
+
+```bash
+brew tap youja2014/tap
+brew install smoothline
+```
+
+Homebrew drops `smoothline` into a managed virtualenv. The `settings.json` registration is identical to 3-C:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "smoothline",
+    "padding": 0
+  }
+}
+```
+
 ---
 
 ## 4. Verifying

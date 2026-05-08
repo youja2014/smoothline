@@ -268,6 +268,31 @@ pip install --user smoothline
 
 Claude Code 재시작. PyPI 바이너리가 엔트리포인트라 별도 `~/.claude/statusline.py` 가 필요 없습니다.
 
+### 3-D. Homebrew 로 설치 (macOS / Linux)
+
+```bash
+brew install youja2014/tap/smoothline
+```
+
+또는 2-step 형식:
+
+```bash
+brew tap youja2014/tap
+brew install smoothline
+```
+
+Homebrew 가 자체 관리하는 virtualenv 에 `smoothline` 을 깔아줍니다. `settings.json` 등록은 3-C 와 동일:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "smoothline",
+    "padding": 0
+  }
+}
+```
+
 ---
 
 ## 4. 동작 확인
