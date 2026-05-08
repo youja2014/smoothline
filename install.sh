@@ -47,12 +47,19 @@ printf "${c_cyan}[2/4]${c_reset} Locating python\n"
 PY=""
 for cand in python3 python; do
     if command -v "$cand" >/dev/null 2>&1; then
-        PY="$(command -v "$cand")"
-        break
+        candidate="$(command -v "$cand")"
+        # Verify the binary actually runs. On Windows, `python3` and `python`
+        # are often Microsoft Store execution aliases — 0-byte stubs that show
+        # up on PATH but redirect to the Store instead of executing. A real
+        # interpreter answers --version; an alias does not.
+        if "$candidate" --version >/dev/null 2>&1; then
+            PY="$candidate"
+            break
+        fi
     fi
 done
 if [ -z "$PY" ]; then
-    printf "${c_red}ERROR:${c_reset} python3/python not found on PATH. Install Python 3.x first.\n" >&2
+    printf "${c_red}ERROR:${c_reset} no working python3/python on PATH. Install Python 3.x (and on Windows, disable the Microsoft Store python aliases under Settings > Apps > App execution aliases).\n" >&2
     exit 1
 fi
 printf "    Using: %s\n" "$PY"

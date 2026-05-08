@@ -39,13 +39,28 @@ Get-Asset 'statusline.py'          $pyOut
 Get-Asset 'statusline-command.ps1' $ps1Out
 
 Write-Host "[2/4] Detecting python on PATH" -ForegroundColor Cyan
-$py = Get-Command python -ErrorAction SilentlyContinue
-if ($py) {
-    $pythonPath = $py.Source
+# Microsoft Store python aliases sit on PATH as 0-byte stubs that redirect to
+# the Store instead of running. Get-Command finds them; only --version proves
+# they're a real interpreter. Try `python` first, then `python3`.
+$pythonPath = $null
+foreach ($name in @('python', 'python3')) {
+    $candidate = Get-Command $name -ErrorAction SilentlyContinue
+    if (-not $candidate) { continue }
+    try {
+        $verOutput = & $candidate.Source --version 2>&1
+        if ($LASTEXITCODE -eq 0 -and "$verOutput" -match 'Python\s+\d') {
+            $pythonPath = $candidate.Source
+            break
+        }
+    } catch {
+        # alias redirect or other startup failure — try the next name
+    }
+}
+if ($pythonPath) {
     Write-Host "    Found: $pythonPath" -ForegroundColor Green
 } else {
     $pythonPath = 'python'
-    Write-Warning "python not found on PATH. statusline.cmd will use the literal 'python' — install Python 3.x and ensure it's on PATH."
+    Write-Warning "No working python on PATH. statusline.cmd will use the literal 'python' — install Python 3.x and disable Microsoft Store aliases under Settings > Apps > App execution aliases, then re-run this installer."
 }
 
 # Generate statusline.cmd dynamically so it points at THIS machine's python.
