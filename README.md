@@ -2,7 +2,7 @@
 
 > Smooth, gradient statusline for Claude Code — context window + Pro/Max 5h/7d rate-limit bars (Windows / macOS / Linux)
 
-**English** | **[한국어](README.ko.md)**
+**English** | **[한국어](https://github.com/youja2014/smoothline/blob/main/README.ko.md)**
 
 [![PyPI](https://img.shields.io/pypi/v/smoothline.svg)](https://pypi.org/project/smoothline/)
 [![Python](https://img.shields.io/pypi/pyversions/smoothline.svg)](https://pypi.org/project/smoothline/)
@@ -276,4 +276,4 @@ You should see two colored lines. After that, restart Claude Code — the new st
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/youja2014/smoothline/blob/main/LICENSE)

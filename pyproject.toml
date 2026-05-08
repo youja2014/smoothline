@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "smoothline"
-version = "0.1.0"
+version = "0.1.1"
 description = "Smooth, gradient statusline for Claude Code — context window + Pro/Max 5h/7d rate-limit bars"
 readme = "README.md"
 requires-python = ">=3.8"
